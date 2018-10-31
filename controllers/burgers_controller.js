@@ -1,25 +1,17 @@
 var express = require("express");
-
 var router = express.Router();
+var burger = require('../models/burger.js');
 
-// Import the model (burger.js) to use its database functions.
-var burger = require("../models/burger.js");
-
-// Create all our routes and set up logic within those routes where required.
-router.get("/", function(req, res) {
-  burger.all(function(data) {
-    console.log(data)
-    res.render("index", {data});
+// Initial base route setup
+// Index page will be rendered on '/' (I.E. the default page)
+router.get('/', function(req,res){
+  burger.selectAll(function(burger_data){
+    console.log(burger_data);
+    res.render('index', {burger_data});
   });
 });
 
-router.post('/burgers/insertIntoValues', function(req,res){
-  burger.insertIntoValues(req.body.burger_name, function(result){
-    console.log(result);
-    res.redirect('/');
-  });
-});
-
+// When we click the devour it button, the corresponding burger item should disappear
 router.put('/burgers/updateSetWhere', function(req,res){
   burger.updateSetWhere(req.body.burger_id, function(result){
     console.log(result);
@@ -27,18 +19,13 @@ router.put('/burgers/updateSetWhere', function(req,res){
   });
 });
 
-router.delete("/api/burgers/:id", function(req, res) {
-  var condition = "id = " + req.params.id;
-
-  burger.delete(condition, function(result) {
-    if (result.affectedRows == 0) {
-      // If no rows were changed, then the ID must not exist, so 404
-      return res.status(404).end();
-    } else {
-      res.status(200).end();
-    }
+// When we add a new burger, this will insert the inputted burger name into the db and redirect to the default page (which is our index page).
+router.post('/burgers/insertIntoValues', function(req,res){
+  burger.insertIntoValues(req.body.burger_name, function(result){
+    console.log(result);
+    res.redirect('/');
   });
 });
 
-// Export routes for server.js to use.
+// This is the object that is actually returned as the result of a require call.
 module.exports = router;

@@ -1,32 +1,25 @@
 var express = require("express");
+var methodOverride = require('method-override');
 var bodyParser = require("body-parser");
-//var methodOverride = require('method-override');
-var PORT = process.env.PORT || 8080;
+var exphbs = require("express-handlebars");
 
 var app = express();
+app.use(express.static(__dirname + '/public'));
 
-// Serve static content for the app from the "public" directory in the application directory.
-app.use(express.static(__dirname + "/public"));
-
-// parse application/x-www-form-urlencoded
+// Sets up the Express app to handle data parsing
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// parse application/json
 app.use(bodyParser.json());
 
-// Set Handlebars.
-var exphbs = require("express-handlebars");
-//app.use(methodOverride('_method'));
+// Setting up handlebars
+app.use(methodOverride('_method'));
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
-// Import routes and give the server access to them.
-var routes = require("./controllers/burgers_controller.js");
-
+// Creating a new routes variable that requires the burgers_controller.js routing file
+var routes = require('./controllers/burgers_controller.js');
 app.use('/', routes);
 
-// Start our server so that it can begin listening to client requests.
-app.listen(PORT, function() {
-  // Log (server-side) when our server has started
-  console.log("Server listening on: http://localhost:" + PORT);
-});
+// Setting the port of the application
+// process.env.PORT lets the port be set by Heroku
+var PORT = process.env.PORT || 8080;
+app.listen(PORT);
